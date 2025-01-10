@@ -1,0 +1,18 @@
+[
+    {
+        "root":"dog",
+        "class":"noun"
+    },
+    {
+        "root":"the",
+        "class":"determiner"
+    },
+    {
+        "root":"eat",
+        "class":"verb"
+    },
+    {
+        "root":"cat",
+        "class":"noun"
+    }
+]

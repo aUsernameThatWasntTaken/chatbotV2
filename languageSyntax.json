@@ -1,0 +1,16 @@
+{
+    "sentence":[
+        [
+            "nounPhrase",
+            "verb",
+            "nounPhrase"
+        ]
+    ],
+    "nounPhrase":[
+        [
+            "?determiner",
+            "*adjective",
+            "noun"
+        ]
+    ]
+}

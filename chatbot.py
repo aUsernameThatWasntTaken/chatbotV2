@@ -88,12 +88,6 @@ with open("languageSyntax.json") as f:
 with open("languageLexicon.json") as f:
     languageLexicon = LanguageLexicon(json.load(f))
 
-# prompt = input("Input: ")
-prompt = "The cat ate the dog" # for testing the code semi-automatically TODO: Add unit tests or something when this is more or less finished
-wordsList = prompt.split()
-#catch exceptions here
-checkStructure(wordsList, "sentence")
-
 class Bot:
     def __init__(self, UserInput: Callable[[None],str], output: Callable[[str],None]):
         self.input: Callable[[None],str] = UserInput

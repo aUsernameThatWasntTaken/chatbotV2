@@ -20,8 +20,11 @@ class LanguageLexicon:
 
 class LexiconWordObject:
     def __init__(self, jsonDict: dict):
-        self.root: str = jsonDict["root"]
-        self.meaning: str = jsonDict["meaning"]
+        try:
+            self.root: str = jsonDict["root"]
+            self.meaning: str = jsonDict.get("meaning", None)
+        except KeyError:
+            raise ValueError(f"languageLexicon.json contains invalid word definition: {jsonDict}")
 
 def wierdFunctionINeed(inputList: list[str], n: int):
     """
@@ -80,16 +83,25 @@ def checkStructure(text: list[str], type: str):
         #use wierdFunctionINeed to split text into various combinations, and check them against the structure.
         textVariations = wierdFunctionINeed(text,len(structure.structure))
         for variation in textVariations:
+            returnTuplesList: list[tuple] = []
             for itemToBeChecked,element in zip(variation, structure.structure):
-                    #YAY! Recursion. :ε
-                    if element[0] == "?":
-                        element = element.removeprefix("?")
-                        #Make this optional
-                    if element[0] == "*":
-                        element = element.removeprefix("*")
-                    checkStructure(itemToBeChecked,element)
-        #TODO: Use the object constructor for the syntax to make this more predictable. (mostly done)
-        #Make this return something like a tuple of something to identify the structure found, or raise an exception if none is found.
+                #YAY! Recursion. :(
+                if element[0] == "?":
+                    element = element.removeprefix("?")
+                    #Make this optional
+                if element[0] == "*":
+                    element = element.removeprefix("*")
+                    #This part will be complicated.
+                checkStructureResult = checkStructure(itemToBeChecked,element)
+                if checkStructureResult is None:
+                    break
+                else:
+                    returnTuplesList.append(checkStructureResult)
+            else:
+                return (structure.name,returnTuplesList)
+    return None
+    #TODO: Use the object constructor for the syntax to make this more predictable. (mostly done)
+    #Make this return something like a tuple of something to identify the structure found, or raise an exception if none is found.
 
 with open("languageSyntax.json") as f:
     languageSyntax = LanguageSyntax(json.load(f))
@@ -109,5 +121,4 @@ class Bot:
             if prompt in ["STOP","stop","QUIT"]:
                 break
             wordsList = prompt.split()
-            #catch exceptions here
-            checkStructure(wordsList, "sentence")
+            print(checkStructure(wordsList, "sentence"))

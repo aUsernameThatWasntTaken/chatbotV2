@@ -59,6 +59,8 @@ def functionThatHelpsTheAbove(n:int, i:int):
     return returnList
 
 def checkStructure(text: list[str], type: str):
+    """Checks if the text (list of words) matches any of the structures in languageSyntax or words in langyageLexicon.\n
+    Returns None if No."""
     if type not in languageSyntax.dict.keys():
         if type not in languageLexicon.dict.keys():
             raise ValueError(f"languageSyntax file contains unsupported Structure or word class: {type}")
@@ -68,6 +70,7 @@ def checkStructure(text: list[str], type: str):
         else:
             return None
     for structure in languageSyntax.dict[type]:
+        #use wierdFunctionINeed to split text into various combinations, and check them against the structure.
         textVariations = wierdFunctionINeed(text,len(structure.structure))
         for variation in textVariations:
             for itemToBeChecked,element in zip(variation, structure.structure):
@@ -78,11 +81,9 @@ def checkStructure(text: list[str], type: str):
                     if element[0] == "*":
                         element = element.removeprefix("*")
                     checkStructure(itemToBeChecked,element)
-            #use wierdFunctionINeed to split text into various combinations, and check them against the structure.
         #TODO: Use the object constructor for the syntax to make this more predictable. (mostly done)
         #Make this return something like a tuple of something to identify the structure found, or raise an exception if none is found.
 
-#define a custom exception (structureNotFoundError)
 with open("languageSyntax.json") as f:
     languageSyntax = LanguageSyntax(json.load(f))
 with open("languageLexicon.json") as f:

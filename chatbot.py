@@ -87,6 +87,8 @@ with open("languageSyntax.json") as f:
     languageSyntax = LanguageSyntax(json.load(f))
 with open("languageLexicon.json") as f:
     languageLexicon = LanguageLexicon(json.load(f))
+with open("knowledge.json") as f:
+    knowledge = json.load(f)
 
 class Bot:
     def __init__(self, UserInput: Callable[[],str], output: Callable[[str],None]):

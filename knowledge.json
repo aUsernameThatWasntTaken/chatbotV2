@@ -1,0 +1,9 @@
+{
+    "objects":{
+        "dog":{},
+        "cat":{}
+    },
+    "actions":{
+        "eat":{}
+    }
+}

@@ -1,4 +1,5 @@
 import json
+from typing import Callable
 
 class LanguageSyntax:
     def __init__(self, jsonDict: dict[str,list[list[str]]]):
@@ -87,3 +88,17 @@ prompt = "The cat ate the dog" # for testing the code semi-automatically TODO: A
 wordsList = prompt.split()
 #catch exceptions here
 checkStructure(wordsList, "sentence")
+
+class Bot:
+    def __init__(self, UserInput: Callable[[None],str], output: Callable[[str],None]):
+        self.input = UserInput
+        self.output = output
+    
+    def run(self):
+        while True:
+            prompt = self.input()
+            if prompt in ["STOP","stop","QUIT"]:
+                break
+            wordsList = prompt.split()
+            #catch exceptions here
+            checkStructure(wordsList, "sentence")

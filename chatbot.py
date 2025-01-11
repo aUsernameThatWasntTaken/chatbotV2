@@ -1,7 +1,7 @@
 import json
 from typing import Callable
 class StructureDef:
-    """An object for storing a structure definition better, so errors can be found faster."""
+    """An object for storing a structure definition from Syntax file better, so errors can be found faster."""
     def __init__(self, definition: dict):
         self.name: str = definition["name"]
         self.structure: list[str] = definition["structure"]
@@ -13,8 +13,15 @@ class LanguageSyntax:
             self.dict[structure] = [StructureDef(structureDefinition) for structureDefinition in structureDefinitions]
 
 class LanguageLexicon:
-    def __init__(self, jsonDict:dict[str,list[dict[str,str]]]):
-        self.dict = jsonDict
+    def __init__(self, jsonDict:dict[str,list[dict]]):
+        self.dict: dict[str, list[LexiconWordObject]] = {}
+        for type, words in jsonDict.items():
+            self.dict[type] = [LexiconWordObject(word) for word in words]
+
+class LexiconWordObject:
+    def __init__(self, jsonDict: dict):
+        self.root: str = jsonDict["root"]
+        self.meaning: str = jsonDict["meaning"]
 
 def wierdFunctionINeed(inputList: list[str], n: int):
     """
@@ -65,7 +72,7 @@ def checkStructure(text: list[str], type: str):
         if type not in languageLexicon.dict.keys():
             raise ValueError(f"languageSyntax file contains unsupported Structure or word class: {type}")
         textStr = " ".join(text)
-        if textStr in [word["root"] for word in languageLexicon.dict[type]]:
+        if textStr in [word.root for word in languageLexicon.dict[type]]:
             return (type, textStr)
         else:
             return None

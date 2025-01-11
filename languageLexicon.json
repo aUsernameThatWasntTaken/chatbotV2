@@ -37,6 +37,17 @@
                 "ate",
                 "eats"
             ]
+        },
+        {
+            "root":"be",
+            "meaning":{
+                "type":"special",
+                "name":"to be"
+            },
+            "conjugations":[
+                "is",
+                "am"
+            ]
         }
     ],
     "adjective":[

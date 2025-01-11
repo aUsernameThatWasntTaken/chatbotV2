@@ -3,6 +3,10 @@
         {
             "name":"declarative1",
             "structure":["nounPhrase","verb","nounPhrase"]
+        },
+        {
+            "name":"question1",
+            "structure":["verb","nounphrase","adjective"]
         }
     ],
     "nounPhrase":[

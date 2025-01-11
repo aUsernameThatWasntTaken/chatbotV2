@@ -23,6 +23,7 @@ class LexiconWordObject:
         try:
             self.root: str = jsonDict["root"]
             self.meaning: str = jsonDict.get("meaning", None)
+            self.conjugations: list[str] = jsonDict.get("conjugations",[])
         except KeyError:
             raise ValueError(f"languageLexicon.json contains invalid word definition: {jsonDict}")
 
@@ -74,10 +75,12 @@ def checkStructure(text: list[str], type: str):
     if type not in languageSyntax.dict.keys():
         if type not in languageLexicon.dict.keys():
             raise ValueError(f"languageSyntax file contains unsupported Structure or word class: {type}")
-        textStr = " ".join(text)
-        if textStr in [word.root for word in languageLexicon.dict[type]]:
+        textStr = " ".join(text).lower()
+        if textStr in [word.root for word in languageLexicon.dict[type]] or True in [(textStr in word.conjugations) for word in languageLexicon.dict[type]]:
+            print(f"{textStr} is a valid {type}")
             return (type, textStr)
         else:
+            print(f"{textStr} isn't a valid {type}")
             return None
     for structure in languageSyntax.dict[type]:
         #use wierdFunctionINeed to split text into various combinations, and check them against the structure.

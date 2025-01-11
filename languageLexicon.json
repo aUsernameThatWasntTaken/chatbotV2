@@ -26,7 +26,11 @@
             "meaning":{
                 "type":"action",
                 "name":"eat"
-            }
+            },
+            "conjugations":[
+                "ate",
+                "eats"
+            ]
         }
     ],
     "adjective":[

@@ -9,6 +9,10 @@
         {
             "name":"nounPhrase1",
             "structure":["?determiner","*adjective","noun"]
+        },
+        {
+            "name":"nounPhraseSimple",
+            "structure":["?determiner","noun"]
         }
     ]
 }

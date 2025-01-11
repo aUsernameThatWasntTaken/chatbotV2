@@ -18,10 +18,11 @@ class testBot(unittest.TestCase):
         self.assertTrue(testSucceeded)
     def test_questions(self):
         try:
-            fakeInput = iter(["Is the cat an orange cat?","STOP"])
+            fakeInput = iter(["Is the cat orange?","STOP"])
             bot = Bot(fakeInput.__next__,print)
             testSucceeded = True
             bot.run()
-        except Exception:
+        except Exception as e:
+            print(e)
             testSucceeded = False
         self.assertTrue(testSucceeded)

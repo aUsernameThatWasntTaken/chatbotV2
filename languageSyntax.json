@@ -6,7 +6,7 @@
         },
         {
             "name":"question1",
-            "structure":["verb","nounphrase","adjective"]
+            "structure":["verb","nounPhrase","adjective"]
         }
     ],
     "nounPhrase":[

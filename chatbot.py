@@ -1,5 +1,7 @@
 import json
 from typing import Callable
+import string
+
 class StructureDef:
     """An object for storing a structure definition from Syntax file better, so errors can be found faster."""
     def __init__(self, definition: dict):
@@ -117,6 +119,12 @@ with open("languageLexicon.json") as f:
 with open("knowledge.json") as f:
     knowledge = knowledgeObject(json.load(f))
 
+def removePunctuation(text:str):
+    for character in string.punctuation:
+        text = text.replace(character,"")
+    return text
+
+
 class Bot:
     def __init__(self, UserInput: Callable[[],str], output: Callable[[str],None]):
         self.input: Callable[[],str] = UserInput
@@ -124,7 +132,7 @@ class Bot:
     
     def run(self) -> None:
         while True:
-            prompt: str = self.input()
+            prompt: str = removePunctuation(self.input().lower())
             if prompt in ["STOP","stop","QUIT"]:
                 break
             wordsList = prompt.split()

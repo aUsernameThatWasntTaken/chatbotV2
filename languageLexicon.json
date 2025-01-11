@@ -18,6 +18,12 @@
     "determiner":[
         {
             "root":"the"
+        },
+        {
+            "root":"a",
+            "conjugations":[
+                "an"
+            ]
         }
     ],
     "verb":[
@@ -34,6 +40,8 @@
         }
     ],
     "adjective":[
-        
+        {
+            "root":"orange"
+        }
     ]
 }

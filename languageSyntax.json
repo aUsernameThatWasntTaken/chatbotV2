@@ -1,16 +1,14 @@
 {
     "sentence":[
-        [
-            "nounPhrase",
-            "verb",
-            "nounPhrase"
-        ]
+        {
+            "name":"declarative1",
+            "structure":["nounPhrase","verb","nounPhrase"]
+        }
     ],
     "nounPhrase":[
-        [
-            "?determiner",
-            "*adjective",
-            "noun"
-        ]
+        {
+            "name":"nounPhrase1",
+            "structure":["?determiner","*adjective","noun"]
+        }
     ]
 }

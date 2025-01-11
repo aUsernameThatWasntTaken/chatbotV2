@@ -1,11 +1,16 @@
 import json
 from typing import Callable
+class StructureDef:
+    """An object for storing a structure definition better, so errors can be found faster."""
+    def __init__(self, definition: dict):
+        self.name: str = definition["name"]
+        self.structure: list[str] = definition["structure"]
 
 class LanguageSyntax:
-    def __init__(self, jsonDict: dict[str,list[list[str]]]):
-        self.dict: dict[str,list[list[str]]] = {}
-        for structure, structureDefinition in jsonDict.items():
-            self.dict[structure] = structureDefinition
+    def __init__(self, jsonDict: dict[str,list[dict]]):
+        self.dict: dict[str,list[StructureDef]] = {}
+        for structure, structureDefinitions in jsonDict.items():
+            self.dict[structure] = [StructureDef(structureDefinition) for structureDefinition in structureDefinitions]
 
 class LanguageLexicon:
     def __init__(self, jsonDict:dict[str,list[dict[str,str]]]):
@@ -63,9 +68,9 @@ def checkStructure(text: list[str], type: str):
         else:
             return None
     for structure in languageSyntax.dict[type]:
-        textVariations = wierdFunctionINeed(text,len(structure))
+        textVariations = wierdFunctionINeed(text,len(structure.structure))
         for variation in textVariations:
-            for itemToBeChecked,element in zip(variation, structure):
+            for itemToBeChecked,element in zip(variation, structure.structure):
                     #YAY! Recursion. :ε
                     if element[0] == "?":
                         element = element.removeprefix("?")
@@ -91,12 +96,12 @@ checkStructure(wordsList, "sentence")
 
 class Bot:
     def __init__(self, UserInput: Callable[[None],str], output: Callable[[str],None]):
-        self.input = UserInput
+        self.input: Callable[[None],str] = UserInput
         self.output = output
     
     def run(self):
         while True:
-            prompt = self.input()
+            prompt: str = self.input()
             if prompt in ["STOP","stop","QUIT"]:
                 break
             wordsList = prompt.split()

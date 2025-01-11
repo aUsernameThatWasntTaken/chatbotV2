@@ -1,7 +1,11 @@
 {
     "objects":{
-        "dog":{},
-        "cat":{}
+        "dog":{
+            "type":"common"
+        },
+        "cat":{
+            "type":"common"
+        }
     },
     "actions":{
         "eat":{}

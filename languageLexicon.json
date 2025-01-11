@@ -1,10 +1,18 @@
 {
     "noun":[
         {
-            "root":"dog"
+            "root":"dog",
+            "meaning":{
+                "type":"object",
+                "name":"dog"
+            }
         },
         {
-            "root":"cat"
+            "root":"cat",
+            "meaning":{
+                "type":"object",
+                "name":"cat"
+            }
         }
     ],
     "determiner":[
@@ -14,7 +22,11 @@
     ],
     "verb":[
         {
-            "root":"eat"
+            "root":"eat",
+            "meaning":{
+                "type":"action",
+                "name":"eat"
+            }
         }
     ],
     "adjective":[

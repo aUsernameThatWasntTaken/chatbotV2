@@ -89,11 +89,11 @@ with open("languageLexicon.json") as f:
     languageLexicon = LanguageLexicon(json.load(f))
 
 class Bot:
-    def __init__(self, UserInput: Callable[[None],str], output: Callable[[str],None]):
-        self.input: Callable[[None],str] = UserInput
+    def __init__(self, UserInput: Callable[[],str], output: Callable[[str],None]):
+        self.input: Callable[[],str] = UserInput
         self.output = output
     
-    def run(self):
+    def run(self) -> None:
         while True:
             prompt: str = self.input()
             if prompt in ["STOP","stop","QUIT"]:

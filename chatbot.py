@@ -27,6 +27,10 @@ class LexiconWordObject:
         except KeyError:
             raise ValueError(f"languageLexicon.json contains invalid word definition: {jsonDict}")
 
+class knowledgeObject:
+    def __init__(self, jsonDict: dict[str,dict[str,dict]]):
+        self.dict = jsonDict
+
 def wierdFunctionINeed(inputList: list[str], n: int):
     """
     function that returns a list of all the ways to split a list into n lists.\n
@@ -111,7 +115,7 @@ with open("languageSyntax.json") as f:
 with open("languageLexicon.json") as f:
     languageLexicon = LanguageLexicon(json.load(f))
 with open("knowledge.json") as f:
-    knowledge = json.load(f)
+    knowledge = knowledgeObject(json.load(f))
 
 class Bot:
     def __init__(self, UserInput: Callable[[],str], output: Callable[[str],None]):

@@ -8,29 +8,39 @@ except Exception as e:
 
 class testBot(unittest.TestCase):
     def test_doesntCrash(self):
+        fakeInput = iter(["The dog ate the cat","STOP"])
+        bot = Bot(fakeInput.__next__,print)
+        testSucceeded = True
         try:
-            fakeInput = iter(["The dog ate the cat","STOP"])
-            bot = Bot(fakeInput.__next__,print)
-            testSucceeded = True
             bot.run()
         except Exception:
             testSucceeded = False
         self.assertTrue(testSucceeded)
     def test_questions(self):
+        fakeInput = iter(["Is the cat orange?","STOP"])
+        bot = Bot(fakeInput.__next__,print)
+        testSucceeded = True
         try:
-            fakeInput = iter(["Is the cat orange?","STOP"])
-            bot = Bot(fakeInput.__next__,print)
-            testSucceeded = True
             bot.run()
         except Exception as e:
             print(e)
             testSucceeded = False
         self.assertTrue(testSucceeded)
     def test_oneWordGibberish(self):
+        fakeInput = iter(["hbjneib","STOP"])
+        bot = Bot(fakeInput.__next__,print)
+        testSucceeded = True
         try:
-            fakeInput = iter(["hbjneib","STOP"])
-            bot = Bot(fakeInput.__next__,print)
-            testSucceeded = True
+            bot.run()
+        except Exception as e:
+            print(e)
+            testSucceeded = False
+        self.assertTrue(testSucceeded)
+    def test_emptyInput(self):
+        fakeInput = iter(["","STOP"])
+        bot = Bot(fakeInput.__next__,print)
+        testSucceeded = True
+        try:
             bot.run()
         except Exception as e:
             print(e)

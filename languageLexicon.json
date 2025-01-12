@@ -1,4 +1,9 @@
 {
+    "basic":{
+        "yes":"yes",
+        "no":"no",
+        "greeting":"Hello!"
+    },
     "noun":[
         {
             "root":"dog",

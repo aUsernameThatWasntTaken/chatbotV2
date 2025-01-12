@@ -1,5 +1,5 @@
 import json
-from typing import Callable
+from typing import Callable, Any
 import string
 
 class StructureDef:
@@ -16,10 +16,20 @@ class LanguageSyntax:
             self.dict[structure] = [StructureDef(structureDefinition) for structureDefinition in structureDefinitions]
 
 class LanguageLexicon:
-    def __init__(self, jsonDict:dict[str,list[dict]]):
+    def __init__(self, jsonDict:dict[str,Any]):
         self.dict: dict[str, list[LexiconWordObject]] = {}
         for type, words in jsonDict.items():
-            self.dict[type] = [LexiconWordObject(word) for word in words]
+            if type == "basic":
+                self.basic = basicWords(words)
+            else:
+                self.dict[type] = [LexiconWordObject(word) for word in words]
+
+class basicWords:
+    # Why do I need to make a class for every little thing just to process the jsons into objects inside objects?
+    def __init__(self, jsonDict:dict[str,str]):
+        self.yes = jsonDict["yes"]
+        self.no = jsonDict["no"]
+        self.greeting = jsonDict["greeting"]
 
 class LexiconWordObject:
     def __init__(self, jsonDict: dict):
@@ -128,9 +138,9 @@ def answer(structuredSentence: tuple[str,list[tuple]]):
         case "checkif":
             _,*remainder = replyDefinition
             if answerQuestion(remainder):
-                return "yes"
+                return languageLexicon.basic.yes
             else:
-                return "no"
+                return languageLexicon.basic.no
     # Use the reply definition and the elementsList to get a reply.
 
 def answerQuestion(question: list) -> bool:
@@ -156,6 +166,7 @@ class Bot:
         self.output = output
     
     def run(self) -> None:
+        self.output(languageLexicon.basic.greeting)
         while True:
             prompt: str = removePunctuation(self.input().lower())
             if prompt in ["STOP","stop","QUIT"]:

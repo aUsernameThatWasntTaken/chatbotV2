@@ -26,3 +26,13 @@ class testBot(unittest.TestCase):
             print(e)
             testSucceeded = False
         self.assertTrue(testSucceeded)
+    def test_oneWordGibberish(self):
+        try:
+            fakeInput = iter(["hbjneib","STOP"])
+            bot = Bot(fakeInput.__next__,print)
+            testSucceeded = True
+            bot.run()
+        except Exception as e:
+            print(e)
+            testSucceeded = False
+        self.assertTrue(testSucceeded)

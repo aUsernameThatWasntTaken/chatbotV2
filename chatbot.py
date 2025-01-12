@@ -173,4 +173,7 @@ class Bot:
                 break
             wordsList = prompt.split()
             sentenceDef = checkStructure(wordsList, "sentence") # I don't know what to name this variable
+            if sentenceDef is None:
+                self.output("I don't understand")
+                continue
             self.output(answer(sentenceDef))

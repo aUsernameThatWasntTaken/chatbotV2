@@ -7,6 +7,7 @@ class StructureDef:
     def __init__(self, definition: dict):
         self.name: str = definition["name"]
         self.structure: list[str] = definition["structure"]
+        self.reply: list = definition.get("reply",["say","ok"])
 
 class LanguageSyntax:
     def __init__(self, jsonDict: dict[str,list[dict]]):
@@ -83,10 +84,8 @@ def checkStructure(text: list[str], type: str):
             raise ValueError(f"languageSyntax file contains unsupported Structure or word class: {type}")
         textStr = " ".join(text).lower()
         if textStr in [word.root for word in languageLexicon.dict[type]] or True in [(textStr in word.conjugations) for word in languageLexicon.dict[type]]:
-            print(f"{textStr} is a valid {type}")
             return (type, textStr)
         else:
-            print(f"{textStr} isn't a valid {type}")
             return None
     for structure in languageSyntax.dict[type]:
         #use wierdFunctionINeed to split text into various combinations, and check them against the structure.
@@ -112,6 +111,32 @@ def checkStructure(text: list[str], type: str):
     #TODO: Use the object constructor for the syntax to make this more predictable. (mostly done)
     #Make this return something like a tuple of something to identify the structure found, or raise an exception if none is found.
 
+def answer(structuredSentence: tuple[str,list[tuple]]):
+    structureName, elementsList = structuredSentence
+    # find the definition of the structure, and get the reply definition from it.
+    replyDefinitions = [structure.reply for structure in languageSyntax.dict["sentence"] if structure.name == structureName]
+    if len(replyDefinitions) < 1:
+        # This will probably never happen, but it will be good to know if it does. 
+        raise RuntimeError(f"checkStructure returned an invalid structure name: {structureName}. Please contact developer.")
+    if len(replyDefinitions) > 1:
+        # This is a legitimate concern.
+        raise RuntimeError(f"Syntax file contains duplicate structureNames: {structureName}. Please contact the maker of the syntax file.")
+    replyDefinition = replyDefinitions[0]
+    match replyDefinition[0]:
+        case "say":
+            return replyDefinition[1]
+        case "checkif":
+            _,*remainder = replyDefinition
+            if answerQuestion(remainder):
+                return "yes"
+            else:
+                return "no"
+    # Use the reply definition and the elementsList to get a reply.
+
+def answerQuestion(question: list) -> bool:
+    #TODO: Make this actually do something
+    return True
+
 with open("languageSyntax.json") as f:
     languageSyntax = LanguageSyntax(json.load(f))
 with open("languageLexicon.json") as f:
@@ -136,4 +161,5 @@ class Bot:
             if prompt in ["STOP","stop","QUIT"]:
                 break
             wordsList = prompt.split()
-            print(checkStructure(wordsList, "sentence"))
+            sentenceDef = checkStructure(wordsList, "sentence") # I don't know what to name this variable
+            self.output(answer(sentenceDef))

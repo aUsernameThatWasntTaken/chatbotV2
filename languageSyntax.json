@@ -6,7 +6,8 @@
         },
         {
             "name":"question1",
-            "structure":["verb","nounPhrase","adjective"]
+            "structure":["verb","nounPhrase","adjective"],
+            "reply":["checkif",2,"in","desc",1]
         }
     ],
     "nounPhrase":[

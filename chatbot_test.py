@@ -17,8 +17,12 @@ class testBot(unittest.TestCase):
             testSucceeded = False
         self.assertTrue(testSucceeded)
     def test_questions(self):
+        def fakeOutput(text):
+            if text == "no":
+                global testSucceeded
+                testSucceeded = False
         fakeInput = iter(["Is the cat orange?","STOP"])
-        bot = Bot(fakeInput.__next__,print)
+        bot = Bot(fakeInput.__next__,fakeOutput)
         testSucceeded = True
         try:
             bot.run()

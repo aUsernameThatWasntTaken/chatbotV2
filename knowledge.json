@@ -5,6 +5,10 @@
         },
         "cat":{
             "type":"common"
+        },
+        "the cat":{
+            "type":"proper",
+            "desc":["orange"]
         }
     },
     "actions":{

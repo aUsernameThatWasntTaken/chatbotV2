@@ -137,15 +137,35 @@ def answer(structuredSentence: tuple[str,list[tuple]]):
             return replyDefinition[1]
         case "checkif":
             _,*remainder = replyDefinition
-            if answerQuestion(remainder):
+            if answerQuestion(remainder, elementsList):
                 return languageLexicon.basic.yes
             else:
                 return languageLexicon.basic.no
     # Use the reply definition and the elementsList to get a reply.
 
-def answerQuestion(question: list) -> bool:
+def answerQuestion(question: list, sentenceElements: list) -> bool:
+    match question:
+        case [x, "in", *aList]:
+            return sentenceElements[x][1] in decode(aList, sentenceElements)
+        case _:
+            raise RuntimeError(f"languageSyntax file contains invalid reply definition: {question}")
     #TODO: Make this actually do something
-    return True
+
+
+def decode(code: list, sentenceElements: list):
+    match code[0]:
+        case "desc":
+            return knowledge.dict["objects"][restringify(sentenceElements[code[1]])]["desc"]
+
+def restringify(sentenceElement: tuple):
+    returnStr = ""
+    _, elements = sentenceElement   
+    if isinstance(elements, str):
+        returnStr = returnStr +" "+ elements
+    else:
+        for e in elements:
+            returnStr = returnStr+" "+restringify(e)
+    return returnStr.removeprefix(" ")
 
 with open("languageSyntax.json") as f:
     languageSyntax = LanguageSyntax(json.load(f))

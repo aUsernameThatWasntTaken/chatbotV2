@@ -50,3 +50,17 @@ class testBot(unittest.TestCase):
             print(e)
             testSucceeded = False
         self.assertTrue(testSucceeded)
+    def test_remembersName(self):
+        testSucceeded = False
+        def fakeoutput(output: str):
+            nonlocal testSucceeded
+            if "max" in output:
+                testSucceeded = True
+        fakeInput = iter(["My name is Max","What is my name?","STOP"])
+        bot = Bot(fakeInput.__next__,fakeoutput)
+        try:
+            bot.run()
+        except Exception as e:
+            print(e)
+            testSucceeded = False
+        self.assertTrue(testSucceeded)

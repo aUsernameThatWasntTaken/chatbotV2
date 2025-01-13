@@ -18,6 +18,13 @@
                 "type":"object",
                 "name":"cat"
             }
+        },
+        {
+            "root":"fox",
+            "meaning":{
+                "type":"object",
+                "name":"fox"
+            }
         }
     ],
     "determiner":[
@@ -53,11 +60,36 @@
                 "is",
                 "am"
             ]
+        },
+        {
+            "root":"jump",
+            "meaning":{
+                "type":"action",
+                "name":"to jump"
+            },
+            "conjugations":[
+                "jumped",
+                "jumps"
+            ]
         }
     ],
     "adjective":[
         {
             "root":"orange"
+        },
+        {
+            "root":"brown"
+        },
+        {
+            "root":"quick"
+        },
+        {
+            "root":"lazy"
+        }
+    ],
+    "preposition":[
+        {
+            "root":"over"
         }
     ]
 }

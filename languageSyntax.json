@@ -5,6 +5,10 @@
             "structure":["nounPhrase","verb","nounPhrase"]
         },
         {
+            "name":"declarativeWithPreposition",
+            "structure":["nounPhrase","verb","prepositionalPhrase"]
+        },
+        {
             "name":"question1",
             "structure":["verb","nounPhrase","adjective"],
             "reply":["checkif",2,"in","desc",1]
@@ -13,11 +17,21 @@
     "nounPhrase":[
         {
             "name":"nounPhrase1",
-            "structure":["?determiner","*adjective","noun"]
+            "structure":["determiner","adjective","noun"]
+        },
+        {
+            "name":"nounPhrase2",
+            "structure":["determiner","adjective","adjective","noun"]
         },
         {
             "name":"nounPhraseSimple",
-            "structure":["?determiner","noun"]
+            "structure":["determiner","noun"]
+        }
+    ],
+    "prepositionalPhrase":[
+        {
+            "name":"prepositionalPhrase",
+            "structure":["preposition","nounPhrase"]
         }
     ]
 }

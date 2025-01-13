@@ -8,7 +8,7 @@ except Exception as e:
 
 class testBot(unittest.TestCase):
     def test_doesntCrash(self):
-        fakeInput = iter(["The dog ate the cat","STOP"])
+        fakeInput = iter(["The dog ate the cat","The quick brown fox jumped over the lazy dog","STOP"])
         bot = Bot(fakeInput.__next__,print)
         testSucceeded = True
         try:
@@ -32,7 +32,7 @@ class testBot(unittest.TestCase):
         self.assertTrue(testSucceeded)
     def test_oneWordGibberish(self):
         fakeInput = iter(["hbjneib","STOP"])
-        bot = Bot(fakeInput.__next__,print)
+        bot = Bot(fakeInput.__next__,lambda _: None)
         testSucceeded = True
         try:
             bot.run()
@@ -41,8 +41,8 @@ class testBot(unittest.TestCase):
             testSucceeded = False
         self.assertTrue(testSucceeded)
     def test_emptyInput(self):
-        fakeInput = iter(["","STOP"])
-        bot = Bot(fakeInput.__next__,print)
+        fakeInput = iter(["","  ","STOP"])
+        bot = Bot(fakeInput.__next__,lambda _: None)
         testSucceeded = True
         try:
             bot.run()

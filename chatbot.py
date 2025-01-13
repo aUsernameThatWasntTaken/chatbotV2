@@ -2,6 +2,8 @@ import json
 from typing import Callable, Any
 import string
 
+debug = False
+
 class StructureDef:
     """An object for storing a structure definition from Syntax file better, so errors can be found faster."""
     def __init__(self, definition: dict):
@@ -96,6 +98,9 @@ def checkStructure(text: list[str], type: str):
         if textStr in [word.root for word in languageLexicon.dict[type]] or True in [(textStr in word.conjugations) for word in languageLexicon.dict[type]]:
             return (type, textStr)
         else:
+            if debug:
+                print([word.root for word in languageLexicon.dict[type]])
+                print(f"\"{textStr}\" is not a valid {type}.")
             return None
     for structure in languageSyntax.dict[type]:
         #use wierdFunctionINeed to split text into various combinations, and check them against the structure.
@@ -104,12 +109,6 @@ def checkStructure(text: list[str], type: str):
             returnTuplesList: list[tuple] = []
             for itemToBeChecked,element in zip(variation, structure.structure):
                 #YAY! Recursion. :(
-                if element[0] == "?":
-                    element = element.removeprefix("?")
-                    #Make this optional
-                if element[0] == "*":
-                    element = element.removeprefix("*")
-                    #This part will be complicated.
                 checkStructureResult = checkStructure(itemToBeChecked,element)
                 if checkStructureResult is None:
                     break
@@ -191,6 +190,6 @@ class Bot:
             wordsList = prompt.split()
             sentenceDef = checkStructure(wordsList, "sentence") # I don't know what to name this variable
             if sentenceDef is None:
-                self.output("I don't understand")
+                self.output("I don't understand how you structured that sentence.")
                 continue
             self.output(answer(sentenceDef))

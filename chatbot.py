@@ -118,8 +118,6 @@ def checkStructure(text: list[str], type: str):
             else:
                 return (structure.name,returnTuplesList)
     return None
-    #TODO: Use the object constructor for the syntax to make this more predictable. (mostly done)
-    #Make this return something like a tuple of something to identify the structure found, or raise an exception if none is found.
 
 def answer(structuredSentence: tuple[str,list[tuple]]):
     structureName, elementsList = structuredSentence
@@ -149,7 +147,6 @@ def answerQuestion(question: list, sentenceElements: list) -> bool:
             return sentenceElements[x][1] in decode(aList, sentenceElements)
         case _:
             raise RuntimeError(f"languageSyntax file contains invalid reply definition: {question}")
-    #TODO: Make this actually do something
 
 
 def decode(code: list, sentenceElements: list):

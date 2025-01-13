@@ -1,17 +1,17 @@
 {
-    "objects":{
-        "dog":{
-            "type":"common"
-        },
-        "cat":{
-            "type":"common"
-        },
-        "the cat":{
-            "type":"proper",
-            "desc":["orange"]
-        }
+    "classes":{
+        "dog":{},
+        "cat":{},
+        "human":{}
     },
     "actions":{
         "eat":{}
+    },
+    "objects":{
+        "user":{},
+        "the cat":{
+            "class":"cat",
+            "desc":["orange"]
+        }
     }
 }

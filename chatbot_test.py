@@ -24,7 +24,7 @@ class testBot(unittest.TestCase):
         except Exception:
             testSucceeded = False
         self.assertTrue(testSucceeded)
-    def test_questions(self):
+    def test_booleanQuestion(self):
         def fakeOutput(text):
             if text == "no":
                 global testSucceeded
@@ -38,6 +38,22 @@ class testBot(unittest.TestCase):
             printExceptionButBetter(e)
             testSucceeded = False
         self.assertTrue(testSucceeded)
+    def test_openQuestions(self):
+        def fakeOutput(text):
+            print(f"The bot said {text}")
+            if text == "orange":
+                global testSucceeded
+                testSucceeded = True
+        fakeInput = iter(["What is the cat's colour?","STOP"])
+        bot = Bot(fakeInput.__next__,fakeOutput)
+        testSucceeded = False
+        try:
+            bot.run()
+        except Exception as e:
+            printExceptionButBetter(e)
+            testSucceeded = False
+        self.assertTrue(testSucceeded)
+    
     def test_oneWordGibberish(self):
         fakeInput = iter(["hbjneib","STOP"])
         bot = Bot(fakeInput.__next__,lambda _: None)

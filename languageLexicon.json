@@ -9,6 +9,9 @@
         " me ":" the user ",
         " i ":" the user "
     },
+        "affixes":{
+        "plural":{"suffix":"'s"}
+    },
     "noun":[
         {
             "root":"dog",
@@ -38,9 +41,8 @@
                 "name":"user"
             }
         },
-        {
-            "root":"name"
-        }
+        {"root":"name"},
+        {"root":"colour"}
     ],
     "determiner":[
         {
@@ -90,6 +92,7 @@
         {"root":"what"}
     ],
     "possesive":[
-        {"root":"user's"}
+        {"root":"user's"},
+        {"root":"cat's"}
     ]
 }

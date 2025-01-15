@@ -12,7 +12,7 @@
             "class":"human",
             "desc":{}
         },
-        "the cat":{
+        "cat":{
             "class":"cat",
             "desc":{"colour":"orange"}
         }

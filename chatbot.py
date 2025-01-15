@@ -31,6 +31,8 @@ class LanguageLexicon:
                 self.basic = basicWords(words)
             elif type == "userInputTranslations":
                 self.userInputTranslations: dict[str,str] = words
+            elif type == "affixes":
+                self.affixes: dict[str,dict[str,str]] = words
             else:
                 self.dict[type] = [LexiconWordObject(word) for word in words]
                 for word in words: 
@@ -51,6 +53,8 @@ class LexiconWordObject:
             self.conjugations: list[str] = jsonDict.get("conjugations",[])
         except KeyError:
             raise ValueError(f"languageLexicon.json contains invalid word definition: {jsonDict}")
+    def __repr__(self):
+        return f"word(root={self.root}, meaning={self.meaning}, conjugations={self.conjugations})"
 
 class knowledgeObject:
     def __init__(self, jsonDict: dict[str,dict[str,dict]]):
@@ -178,36 +182,45 @@ def answerClosedQuestion(question: list, elementsList) -> bool:
 
 def decode(code: list, elementsList):
     """Currently returns the description of an object, but it can do much more if told how."""
+    if debug:
+        print(f"decoding {elementsList} using {code}")
     match code:
         case ["desc",Object]:
-            print(Object)
+            if debug:
+                print(f"Returning the description of {Object}")
             return knowledge.dict["objects"][decodePhrase(Object, elementsList)]["desc"]
         case [attribute, "of", Object]:
             if debug:
                 print(f"Pattern [attribute, \"of\", Object] matched by {code}")
-            return knowledge.dict["objects"][decodePhrase(Object, elementsList)][attribute]
+                print(f"searching for {attribute[1]} in {knowledge.dict["objects"][decodePhrase(Object, elementsList).removesuffix(languageLexicon.affixes["plural"]["suffix"])]["desc"]}")
+            return knowledge.dict["objects"][decodePhrase(Object, elementsList).removesuffix(languageLexicon.affixes["plural"]["suffix"])]["desc"][attribute[1]]
+        case _:
+            raise RuntimeError(f"invalid code: {code}")
 
 def decodePhrase(phrase: tuple[str,list], elementsList):
     if phrase[0] == "specificWord":
         return phrase[1]
+    # checks if it is a structure
     structureList = [structure for structure in languageSyntax.allstructures if structure.name == phrase[0]]
-    if len(structureList) != 1:
-        print([structure.name for structure in languageSyntax.allstructures], phrase[0])
-        raise RuntimeError(f"invalid structure list: {structureList}. Should contain exactly one element.")
-    structure = structureList[0]
-    if debug:
-        print(structure.variant)
-    match structure.variant:
-        case "normalNounPhrase":
-            return restringify(phrase)
-        case "possesiveNounPhrase":
-            newElementsList = phrase[1]
-            meaning = [newElementsList[item] if isinstance(item,int) else item for item in structure.meaning]
-            if debug:
-                print(f"Possesive Noun Phrase to decode: {phrase}, using {meaning}")
-            return decode (meaning, newElementsList)
-            
-    raise NotImplementedError(f"decode phrase not implemented. Input: {phrase}")
+    if len(structureList) == 1:
+        structure = structureList[0]
+        if debug:
+            print(structure.variant)
+        match structure.variant:
+            case "normalNounPhrase":
+                return dict(phrase[1])["noun"]
+            case "possesiveNounPhrase":
+                newElementsList = phrase[1]
+                meaning = [newElementsList[item] if isinstance(item,int) else item for item in structure.meaning]
+                if debug:
+                    print(f"Possesive Noun Phrase to decode: {phrase}, using {meaning}")
+                return decode (meaning, newElementsList)
+        raise RuntimeError("No clue how this happened.")
+    #checks if it is a word
+    wordsList = [word for word in languageLexicon.allWords if word.root == phrase[1] or phrase[1] in word.conjugations]
+    if len(wordsList) == 1:
+        return wordsList[0].root
+    raise RuntimeError(f"Neither structuresList ({structureList}) nor wordsList ({wordsList}) contain exactly one element.")
 
 def restringify(sentenceElement: tuple):
     returnStr = ""
@@ -228,6 +241,8 @@ with open("knowledge.json") as f:
 
 def removePunctuation(text:str):
     for character in string.punctuation:
+        if character == "'":
+            continue
         text = text.replace(character,"")
     return text
 

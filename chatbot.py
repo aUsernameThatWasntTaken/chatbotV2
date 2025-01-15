@@ -2,7 +2,7 @@ import json
 from typing import Callable, Any
 import string
 
-debug = False
+debug = True
 
 class StructureDef:
     """An object for storing a structure definition from Syntax file better, so errors can be found faster."""
@@ -10,21 +10,31 @@ class StructureDef:
         self.name: str = definition["name"]
         self.structure: list[str] = definition["structure"]
         self.reply: list = definition.get("reply",["say","ok"])
+        self.variant: str = definition.get("variant","None")
+        self.meaning: dict = definition.get("meaning",{})
 
 class LanguageSyntax:
     def __init__(self, jsonDict: dict[str,list[dict]]):
         self.dict: dict[str,list[StructureDef]] = {}
+        self.allstructures: list[StructureDef] = [StructureDef({"name":"specificWord","structure":["any"]})]
         for structure, structureDefinitions in jsonDict.items():
             self.dict[structure] = [StructureDef(structureDefinition) for structureDefinition in structureDefinitions]
+            for structureDef in structureDefinitions:
+                self.allstructures.append(StructureDef(structureDef))
 
 class LanguageLexicon:
     def __init__(self, jsonDict:dict[str,Any]):
         self.dict: dict[str, list[LexiconWordObject]] = {}
+        self.allWords: list[LexiconWordObject] = []
         for type, words in jsonDict.items():
             if type == "basic":
                 self.basic = basicWords(words)
+            elif type == "userInputTranslations":
+                self.userInputTranslations: dict[str,str] = words
             else:
                 self.dict[type] = [LexiconWordObject(word) for word in words]
+                for word in words: 
+                    self.allWords.append(LexiconWordObject(word)) 
 
 class basicWords:
     # Why do I need to make a class for every little thing just to process the jsons into objects inside objects?
@@ -45,8 +55,10 @@ class LexiconWordObject:
 class knowledgeObject:
     def __init__(self, jsonDict: dict[str,dict[str,dict]]):
         self.dict = jsonDict
+    def __str__(self):
+        return str(self.dict)
 
-def wierdFunctionINeed(inputList: list[str], n: int):
+def generateListPartitions(inputList: list[str], n: int):
     """
     function that returns a list of all the ways to split a list into n lists.\n
     I already hate this project.\n
@@ -56,7 +68,7 @@ def wierdFunctionINeed(inputList: list[str], n: int):
     TODO: Rename this and the other function to something better.
     """
     returnList: list[list[list[str]]] = []
-    for numbersPossibility in functionThatHelpsTheAbove(n,len(inputList)):
+    for numbersPossibility in generateIntegerPartitions(n,len(inputList)):
         iterator = iter(inputList)
         possibility: list[list[str]] = []
         for number in numbersPossibility:
@@ -69,7 +81,7 @@ def wierdFunctionINeed(inputList: list[str], n: int):
         returnList.append(possibility)
     return returnList
 
-def functionThatHelpsTheAbove(n:int, i:int):
+def generateIntegerPartitions(n:int, i:int):
     """
     Another weird function using recursiveness to generate all sets of n positive integers (not including 0) that add up to i.\n
     Fuck my life and the person I have chosen to be.\n
@@ -81,7 +93,7 @@ def functionThatHelpsTheAbove(n:int, i:int):
             returnList.append([j,i-j])
     else:
         for j in range(1,i):
-            for otherNumsPossibility in functionThatHelpsTheAbove(n-1,i-j):
+            for otherNumsPossibility in generateIntegerPartitions(n-1,i-j):
                 possibility = [j]
                 for number in otherNumsPossibility:
                     possibility.append(number)
@@ -91,20 +103,26 @@ def functionThatHelpsTheAbove(n:int, i:int):
 def checkStructure(text: list[str], type: str):
     """Checks if the text (list of words) matches any of the structures in languageSyntax or words in langyageLexicon.\n
     Returns None if No."""
+    if type == "any":
+        return ("any",text)
     if type not in languageSyntax.dict.keys():
         if type not in languageLexicon.dict.keys():
-            raise ValueError(f"languageSyntax file contains unsupported Structure or word class: {type}")
+            if (type not in [word.root for word in languageLexicon.allWords]) and (True not in [(type in word.conjugations) for word in languageLexicon.allWords]):
+                if debug: print([(type in word.conjugations) for word in languageLexicon.allWords])
+                raise ValueError(f"languageSyntax file contains unsupported Structure, word class or word: \"{type}\"")
+            return ("specificWord",type)
         textStr = " ".join(text).lower()
         if textStr in [word.root for word in languageLexicon.dict[type]] or True in [(textStr in word.conjugations) for word in languageLexicon.dict[type]]:
+            if debug:
+                print(f"\"{textStr}\" is a valid {type}.")
             return (type, textStr)
         else:
             if debug:
-                print([word.root for word in languageLexicon.dict[type]])
                 print(f"\"{textStr}\" is not a valid {type}.")
             return None
     for structure in languageSyntax.dict[type]:
-        #use wierdFunctionINeed to split text into various combinations, and check them against the structure.
-        textVariations = wierdFunctionINeed(text,len(structure.structure))
+        #use generateListPartitions to split text into various combinations, and check them against the structure.
+        textVariations = generateListPartitions(text,len(structure.structure))
         for variation in textVariations:
             returnTuplesList: list[tuple] = []
             for itemToBeChecked,element in zip(variation, structure.structure):
@@ -129,29 +147,67 @@ def answer(structuredSentence: tuple[str,list[tuple]]):
         # This is a legitimate concern.
         raise RuntimeError(f"Syntax file contains duplicate structureNames: {structureName}. Please contact the maker of the syntax file.")
     replyDefinition = replyDefinitions[0]
-    match replyDefinition[0]:
-        case "say":
-            return replyDefinition[1]
-        case "checkif":
-            _,*remainder = replyDefinition
-            if answerQuestion(remainder, elementsList):
+    replyDefinition = [elementsList[item] if isinstance(item,int) else item for item in replyDefinition] # replaces any number with the corresponding element.
+    match replyDefinition:
+        case ["say",something]:
+            return something
+        case ["checkif",*something]:
+            if answerClosedQuestion(something, elementsList):
                 return languageLexicon.basic.yes
             else:
                 return languageLexicon.basic.no
+        case ["find",*something]:
+            return decode(something, elementsList)
+        case _:
+            raise RuntimeError(f"invalid reply definition: {replyDefinition}")
     # Use the reply definition and the elementsList to get a reply.
 
-def answerQuestion(question: list, sentenceElements: list) -> bool:
+
+def answerClosedQuestion(question: list, elementsList) -> bool:
+    """Uses decode to answer questions with True/False answers, such as whether the description
+    of an object contains a specific adjective"""
     match question:
         case [x, "in", *aList]:
-            return sentenceElements[x][1] in decode(aList, sentenceElements)
+            if debug:
+                print(question)
+                print(x)
+            return x[1] in decode(aList, elementsList)
         case _:
             raise RuntimeError(f"languageSyntax file contains invalid reply definition: {question}")
 
 
-def decode(code: list, sentenceElements: list):
-    match code[0]:
-        case "desc":
-            return knowledge.dict["objects"][restringify(sentenceElements[code[1]])]["desc"]
+def decode(code: list, elementsList):
+    """Currently returns the description of an object, but it can do much more if told how."""
+    match code:
+        case ["desc",Object]:
+            print(Object)
+            return knowledge.dict["objects"][decodePhrase(Object, elementsList)]["desc"]
+        case [attribute, "of", Object]:
+            if debug:
+                print(f"Pattern [attribute, \"of\", Object] matched by {code}")
+            return knowledge.dict["objects"][decodePhrase(Object, elementsList)][attribute]
+
+def decodePhrase(phrase: tuple[str,list], elementsList):
+    if phrase[0] == "specificWord":
+        return phrase[1]
+    structureList = [structure for structure in languageSyntax.allstructures if structure.name == phrase[0]]
+    if len(structureList) != 1:
+        print([structure.name for structure in languageSyntax.allstructures], phrase[0])
+        raise RuntimeError(f"invalid structure list: {structureList}. Should contain exactly one element.")
+    structure = structureList[0]
+    if debug:
+        print(structure.variant)
+    match structure.variant:
+        case "normalNounPhrase":
+            return restringify(phrase)
+        case "possesiveNounPhrase":
+            newElementsList = phrase[1]
+            meaning = [newElementsList[item] if isinstance(item,int) else item for item in structure.meaning]
+            if debug:
+                print(f"Possesive Noun Phrase to decode: {phrase}, using {meaning}")
+            return decode (meaning, newElementsList)
+            
+    raise NotImplementedError(f"decode phrase not implemented. Input: {phrase}")
 
 def restringify(sentenceElement: tuple):
     returnStr = ""
@@ -184,12 +240,22 @@ class Bot:
     def run(self) -> None:
         self.output(languageLexicon.basic.greeting)
         while True:
-            prompt: str = removePunctuation(self.input().lower())
-            if prompt in ["STOP","stop","QUIT"]:
+            prompt: str = " " + removePunctuation(self.input().lower())
+            for word, translation in languageLexicon.userInputTranslations.items():
+                prompt = prompt.replace(word,translation)
+            prompt = prompt.removeprefix(" ")
+            if prompt in ["stop","quit"]:
                 break
             wordsList = prompt.split()
             sentenceDef = checkStructure(wordsList, "sentence") # I don't know what to name this variable
             if sentenceDef is None:
                 self.output("I don't understand how you structured that sentence.")
+                if debug:
+                    print(f"(The sentence was \"{prompt}\")")
                 continue
+            if debug:
+                print(sentenceDef)
             self.output(answer(sentenceDef))
+        if debug:
+            print("KNOWLEDGE:")
+            print(str(knowledge))

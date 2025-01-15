@@ -8,10 +8,13 @@
         "eat":{}
     },
     "objects":{
-        "user":{},
+        "user":{
+            "class":"human",
+            "desc":{}
+        },
         "the cat":{
             "class":"cat",
-            "desc":["orange"]
+            "desc":{"colour":"orange"}
         }
     }
 }

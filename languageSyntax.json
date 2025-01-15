@@ -2,16 +2,17 @@
     "sentence":[
         {
             "name":"declarative1",
-            "structure":["nounPhrase","verb","nounPhrase"]
-        },
-        {
-            "name":"declarativeWithPreposition",
-            "structure":["nounPhrase","verb","prepositionalPhrase"]
+            "structure":["nounPhrase","verb","any"]
         },
         {
             "name":"question1",
             "structure":["verb","nounPhrase","adjective"],
             "reply":["checkif",2,"in","desc",1]
+        },
+        {
+            "name":"question2",
+            "structure":["interrogative","is","nounPhrase"],
+            "reply":["find","desc",2]
         }
     ],
     "nounPhrase":[
@@ -25,7 +26,14 @@
         },
         {
             "name":"nounPhraseSimple",
-            "structure":["determiner","noun"]
+            "structure":["determiner","noun"],
+            "variant":"normalNounPhrase"
+        },
+        {
+            "name":"possesivePhrase1",
+            "structure":["determiner","possesive","noun"],
+            "variant":"possesiveNounPhrase",
+            "meaning":[2,"of",1]
         }
     ],
     "prepositionalPhrase":[

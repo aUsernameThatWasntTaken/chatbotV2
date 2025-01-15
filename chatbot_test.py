@@ -5,6 +5,14 @@ except Exception as e:
     print("Encountered exception: "+str(e))
     exit(1)
 
+def printExceptionButBetter(e: Exception):
+    traceback = []
+    Next = e.__traceback__
+    while Next is not None:
+        traceback.append(Next.tb_lineno)
+        Next = Next.tb_next
+    print(repr(e),"on lines (in order from first to last called):", traceback)
+
 
 class testBot(unittest.TestCase):
     def test_doesntCrash(self):
@@ -27,7 +35,7 @@ class testBot(unittest.TestCase):
         try:
             bot.run()
         except Exception as e:
-            print(e)
+            printExceptionButBetter(e)
             testSucceeded = False
         self.assertTrue(testSucceeded)
     def test_oneWordGibberish(self):
@@ -53,14 +61,22 @@ class testBot(unittest.TestCase):
     def test_remembersName(self):
         testSucceeded = False
         def fakeoutput(output: str):
-            nonlocal testSucceeded
-            if "max" in output:
-                testSucceeded = True
+            try:
+                print(output)
+                nonlocal testSucceeded
+                if "max" in output:
+                    testSucceeded = True
+            except Exception as e:
+                print(f"fakeOutput crashed: {e}")
+                raise e
         fakeInput = iter(["My name is Max","What is my name?","STOP"])
         bot = Bot(fakeInput.__next__,fakeoutput)
         try:
             bot.run()
         except Exception as e:
-            print(e)
+            printExceptionButBetter(e)
+            print("did crash")
             testSucceeded = False
+        else:
+            print("didn't crash")
         self.assertTrue(testSucceeded)

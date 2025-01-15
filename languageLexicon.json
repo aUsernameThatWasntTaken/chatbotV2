@@ -4,6 +4,11 @@
         "no":"no",
         "greeting":"Hello!"
     },
+    "userInputTranslations":{
+        " my ":" the user's ",
+        " me ":" the user ",
+        " i ":" the user "
+    },
     "noun":[
         {
             "root":"dog",
@@ -25,6 +30,16 @@
                 "type":"object",
                 "name":"fox"
             }
+        },
+        {
+            "root":"user",
+            "meaning":{
+                "type":"object",
+                "name":"user"
+            }
+        },
+        {
+            "root":"name"
         }
     ],
     "determiner":[
@@ -33,9 +48,7 @@
         },
         {
             "root":"a",
-            "conjugations":[
-                "an"
-            ]
+            "conjugations":["an"]
         }
     ],
     "verb":[
@@ -45,10 +58,7 @@
                 "type":"action",
                 "name":"eat"
             },
-            "conjugations":[
-                "ate",
-                "eats"
-            ]
+            "conjugations":["ate","eats"]
         },
         {
             "root":"be",
@@ -56,10 +66,7 @@
                 "type":"special",
                 "name":"to be"
             },
-            "conjugations":[
-                "is",
-                "am"
-            ]
+            "conjugations":["is","am"]
         },
         {
             "root":"jump",
@@ -67,29 +74,22 @@
                 "type":"action",
                 "name":"to jump"
             },
-            "conjugations":[
-                "jumped",
-                "jumps"
-            ]
+            "conjugations":["jumped","jumps"]
         }
     ],
     "adjective":[
-        {
-            "root":"orange"
-        },
-        {
-            "root":"brown"
-        },
-        {
-            "root":"quick"
-        },
-        {
-            "root":"lazy"
-        }
+        {"root":"orange"},
+        {"root":"brown"},
+        {"root":"quick"},
+        {"root":"lazy"}
     ],
     "preposition":[
-        {
-            "root":"over"
-        }
+        {"root":"over"}
+    ],
+    "interrogative":[
+        {"root":"what"}
+    ],
+    "possesive":[
+        {"root":"user's"}
     ]
 }

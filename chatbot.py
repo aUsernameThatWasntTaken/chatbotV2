@@ -1,6 +1,7 @@
 import json
 from typing import Callable, Any
 import string
+import helperClasses
 
 debug = True
 
@@ -104,22 +105,22 @@ def generateIntegerPartitions(n:int, i:int):
                 returnList.append(possibility)
     return returnList
 
-def checkStructure(text: list[str], type: str):
+def checkStructure(text: list[str], type: str) -> helperClasses.checkStructureReturnType | None:
     """Checks if the text (list of words) matches any of the structures in languageSyntax or words in langyageLexicon.\n
     Returns None if No."""
     if type == "any":
-        return ("any",text)
+        return helperClasses.AnyStructure(text)
     if type not in languageSyntax.dict.keys():
         if type not in languageLexicon.dict.keys():
             if (type not in [word.root for word in languageLexicon.allWords]) and (True not in [(type in word.conjugations) for word in languageLexicon.allWords]):
                 if debug: print([(type in word.conjugations) for word in languageLexicon.allWords])
                 raise ValueError(f"languageSyntax file contains unsupported Structure, word class or word: \"{type}\"")
-            return ("specificWord",type)
+            return helperClasses.OneWord("specificWord",type)
         textStr = " ".join(text).lower()
         if textStr in [word.root for word in languageLexicon.dict[type]] or True in [(textStr in word.conjugations) for word in languageLexicon.dict[type]]:
             if debug:
                 print(f"\"{textStr}\" is a valid {type}.")
-            return (type, textStr)
+            return helperClasses.OneWord(type, textStr)
         else:
             if debug:
                 print(f"\"{textStr}\" is not a valid {type}.")
@@ -128,7 +129,7 @@ def checkStructure(text: list[str], type: str):
         #use generateListPartitions to split text into various combinations, and check them against the structure.
         textVariations = generateListPartitions(text,len(structure.structure))
         for variation in textVariations:
-            returnTuplesList: list[tuple] = []
+            returnTuplesList: list[helperClasses.checkStructureReturnType] = []
             for itemToBeChecked,element in zip(variation, structure.structure):
                 #YAY! Recursion. :(
                 checkStructureResult = checkStructure(itemToBeChecked,element)
@@ -137,37 +138,36 @@ def checkStructure(text: list[str], type: str):
                 else:
                     returnTuplesList.append(checkStructureResult)
             else:
-                return (structure.name,returnTuplesList)
+                return helperClasses.Structure(structure.name,returnTuplesList)
     return None
 
-def answer(structuredSentence: tuple[str,list[tuple]]):
-    structureName, elementsList = structuredSentence
+def answer(structuredSentence: helperClasses.checkStructureReturnType):
     # find the definition of the structure, and get the reply definition from it.
-    replyDefinitions = [structure.reply for structure in languageSyntax.dict["sentence"] if structure.name == structureName]
+    replyDefinitions = [structure.reply for structure in languageSyntax.dict["sentence"] if structure.name == structuredSentence.structureName]
     if len(replyDefinitions) < 1:
         # This will probably never happen, but it will be good to know if it does. 
-        raise RuntimeError(f"checkStructure returned an invalid structure name: {structureName}. Please contact developer.")
+        raise RuntimeError(f"checkStructure returned an invalid structure name: {structuredSentence.structureName}. Please contact developer.")
     if len(replyDefinitions) > 1:
         # This is a legitimate concern.
-        raise RuntimeError(f"Syntax file contains duplicate structureNames: {structureName}. Please contact the maker of the syntax file.")
+        raise RuntimeError(f"Syntax file contains duplicate structuredSentence.structureNames: {structuredSentence.structureName}. Please contact the maker of the syntax file.")
     replyDefinition = replyDefinitions[0]
-    replyDefinition = [elementsList[item] if isinstance(item,int) else item for item in replyDefinition] # replaces any number with the corresponding element.
+    replyDefinition = [structuredSentence.contents[item] if isinstance(item,int) else item for item in replyDefinition] # replaces any number with the corresponding element.
     match replyDefinition:
         case ["say",something]:
             return something
         case ["checkif",*something]:
-            if answerClosedQuestion(something, elementsList):
+            if answerClosedQuestion(something, structuredSentence.contents):
                 return languageLexicon.basic.yes
             else:
                 return languageLexicon.basic.no
         case ["find",*something]:
-            return decode(something, elementsList)
+            return decode(something, structuredSentence.contents)
         case _:
             raise RuntimeError(f"invalid reply definition: {replyDefinition}")
-    # Use the reply definition and the elementsList to get a reply.
+    # Use the reply definition and the structuredSentence.contents to get a reply.
 
 
-def answerClosedQuestion(question: list, elementsList) -> bool:
+def answerClosedQuestion(question: list, elementsList: list[helperClasses.checkStructureReturnType]) -> bool:
     """Uses decode to answer questions with True/False answers, such as whether the description
     of an object contains a specific adjective"""
     match question:
@@ -180,7 +180,7 @@ def answerClosedQuestion(question: list, elementsList) -> bool:
             raise RuntimeError(f"languageSyntax file contains invalid reply definition: {question}")
 
 
-def decode(code: list, elementsList):
+def decode(code: list, elementsList: list[helperClasses.checkStructureReturnType]):
     """Currently returns the description of an object, but it can do much more if told how."""
     if debug:
         print(f"decoding {elementsList} using {code}")
@@ -202,12 +202,16 @@ def decodePhrase(phrase: tuple[str,list], elementsList):
         return phrase[1]
     # checks if it is a structure
     structureList = [structure for structure in languageSyntax.allstructures if structure.name == phrase[0]]
+    if debug:
+        print(phrase)
+        print(f"structures {[structure.name for structure in languageSyntax.allstructures]} compared to {phrase[0]}")
     if len(structureList) == 1:
         structure = structureList[0]
         if debug:
             print(structure.variant)
         match structure.variant:
             case "normalNounPhrase":
+                print(1)
                 return dict(phrase[1])["noun"]
             case "possesiveNounPhrase":
                 newElementsList = phrase[1]
@@ -218,6 +222,8 @@ def decodePhrase(phrase: tuple[str,list], elementsList):
         raise RuntimeError("No clue how this happened.")
     #checks if it is a word
     wordsList = [word for word in languageLexicon.allWords if word.root == phrase[1] or phrase[1] in word.conjugations]
+    if debug:
+        print(f"structures {[word.root for word in languageLexicon.allWords]} compared to {phrase[1]}")
     if len(wordsList) == 1:
         return wordsList[0].root
     raise RuntimeError(f"Neither structuresList ({structureList}) nor wordsList ({wordsList}) contain exactly one element.")
@@ -270,7 +276,7 @@ class Bot:
                 continue
             if debug:
                 print(sentenceDef)
-            self.output(answer(sentenceDef))
+            self.output(sentenceDef.answer(languageSyntax,languageLexicon,decode,answerClosedQuestion))
         if debug:
             print("KNOWLEDGE:")
             print(str(knowledge))
